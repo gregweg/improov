@@ -1,6 +1,17 @@
 import React from 'react';
 
 export default function Stats({ stats }) {
+    const [user, setUser] = useState(null);
+
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+
+        fetch("/api/me", {
+            headers: { Authorization: `Bearer ${token}` },
+        })
+        .then((res) => res.json())
+        .then(setUser);
+    }, []);
     return (
       <div>
         <h2>Your Stats</h2>

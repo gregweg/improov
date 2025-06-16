@@ -3,9 +3,17 @@ import axios from 'axios';
 
 export default function CategorySelector({ setCategory, setTask, userId }) {
   const [categories, setCategories] = useState([]);
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
-    axios.get('/api/categories')
+    axios.get("/api/categories", {
+            params: {
+                userId: userId,
+            },
+            headers: {
+                Authorization: `Bearer ${token}`,
+            }
+        })
       .then(res => setCategories(res.data))
       .catch(console.error);
   }, []);
@@ -13,7 +21,15 @@ export default function CategorySelector({ setCategory, setTask, userId }) {
   const selectCategory = async (cat) => {
     setCategory(cat);
     try {
-        const res = await axios.get(`/api/tasks/suggest?category=${cat.name.toLowerCase()}&userId=${userId}`);
+        const res = await axios.get("/api/tasks/suggest", {
+            params: {
+                category: cat.name.toLowerCase(),
+                userId: userId,
+            },
+            headers: {
+                Authorization: `Bearer ${token}`,
+            }
+        });
         if (res.data) {
             console.log("Suggested task:", res.data);
             setTask(res.data);

@@ -12,10 +12,10 @@ var Tasks = []models.Task{
 var Users = map[string]*models.User{
 	"demo": {
 		ID: "demo",
-		Stats: map[string]int{
-			"fitness":     0,
-			"learning":    0,
-			"mindfulness": 0,
+		Stats: models.UserStats{
+			Fitness:     0,
+			Learning:    0,
+			Mindfulness: 0,
 		},
 	},
 }

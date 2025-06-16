@@ -3,14 +3,17 @@ package models
 import "gorm.io/gorm"
 
 type User struct {
-	ID          string          `gorm:"primaryKey" json:"id"`
-	Stats       map[string]int  `gorm:"-" json:"stats,omitempty"`
-	Fitness     int             `json:"fitness"`
-	Learning    int             `json:"learning"`
-	Mindfulness int             `json:"mindfulness"`
-	Completed   []CompletedTask `json:"completed"`
-	Username    string          `json:"username"`
-	Password    string          `json:"-"` // store hashed password, omit in JSON
+	ID        string          `gorm:"primaryKey" json:"id"` // can be username
+	Name      string          `json:"name"`
+	Password  string          `json:"-"` // store hashed password, omit in JSON
+	Completed []CompletedTask `json:"completed"`
+	Stats     UserStats       `json:"stats" gorm:"embedded"`
+}
+
+type UserStats struct {
+	Fitness     int
+	Learning    int
+	Mindfulness int
 }
 
 type Task struct {

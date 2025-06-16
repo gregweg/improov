@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"improov/auth"
 	"improov/middleware"
 	"improov/mocks"
@@ -13,6 +14,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func getAuthToken(t *testing.T) string {
@@ -98,10 +100,12 @@ func TestCompleteTaskSuccess(t *testing.T) {
 	userID := "admin"
 
 	user := &models.User{
-		ID:          userID,
-		Fitness:     0,
-		Learning:    0,
-		Mindfulness: 0,
+		ID: userID,
+		Stats: models.UserStats{
+			Fitness:     0,
+			Learning:    0,
+			Mindfulness: 0,
+		},
 	}
 
 	// Expect these mock calls for user "tester"
@@ -125,9 +129,9 @@ func TestCompleteTaskSuccess(t *testing.T) {
 	err := json.Unmarshal(respBody, &updated)
 	assert.NoError(t, err)
 
-	assert.Equal(t, 10, updated.Fitness)
-	assert.Equal(t, 0, updated.Learning)
-	assert.Equal(t, 0, updated.Mindfulness)
+	assert.Equal(t, 10, updated.Stats.Fitness)
+	assert.Equal(t, 0, updated.Stats.Learning)
+	assert.Equal(t, 0, updated.Stats.Mindfulness)
 
 	mockDB.AssertExpectations(t)
 }
@@ -167,5 +171,43 @@ func TestGetCompletedTasks(t *testing.T) {
 	assert.Equal(t, "Do 10 push-ups", result[0].Task.Description)
 	assert.Equal(t, "fit-001", result[0].Task.ID)
 
+	mockDB.AssertExpectations(t)
+}
+
+func TestRegisterUser(t *testing.T) {
+	mockDB := new(mocks.MockDB)
+	// Prepare test user payload
+
+	username := "testuser"
+	//password := "secure123"
+	//name := "Test User"
+
+	// Set up mock expectations
+	mockDB.On("GetUserByID", username).Return(nil, errors.New("not found"))
+	mockDB.On("SaveUser", mock.AnythingOfType("*models.User")).Return(nil)
+
+	authHandler := &AuthHandler{DB: mockDB}
+
+	// Prepare request
+	payload := `{"username":"testuser","password":"secure123","name":"Test User"}`
+	req := httptest.NewRequest("POST", "/api/register", strings.NewReader(payload))
+	req.Header.Set("Content-Type", "application/json")
+	rr := httptest.NewRecorder()
+
+	// Call the method-based handler
+	authHandler.Register(rr, req)
+
+	// Assert the response
+	assert.Equal(t, http.StatusOK, rr.Code, "Expected 200 OK")
+
+	var response map[string]string
+	err := json.Unmarshal(rr.Body.Bytes(), &response)
+	assert.NoError(t, err, "Response should be valid JSON")
+
+	token, ok := response["token"]
+	assert.True(t, ok, "Token should be present in response")
+	assert.NotEmpty(t, token, "Token should not be empty")
+
+	// Verify mock expectations
 	mockDB.AssertExpectations(t)
 }

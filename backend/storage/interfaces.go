@@ -9,4 +9,5 @@ type DBInterface interface {
 	CreateCompletedTask(userID, taskID string) error
 	GetCompletedTasks(userID string) ([]models.CompletedTask, error)
 	GetAllCategories(categories *[]models.Category) error
+	GetUserByID(userID string) (*models.User, error)
 }

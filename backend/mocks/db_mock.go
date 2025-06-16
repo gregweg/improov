@@ -42,3 +42,12 @@ func (m *MockDB) GetAllCategories(out *[]models.Category) error {
 	}
 	return args.Error(1)
 }
+
+func (m *MockDB) GetUserByID(userID string) (*models.User, error) {
+	args := m.Called(userID)
+	user := args.Get(0)
+	if user == nil {
+		return nil, args.Error(1)
+	}
+	return user.(*models.User), args.Error(1)
+}

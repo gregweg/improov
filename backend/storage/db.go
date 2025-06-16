@@ -53,3 +53,12 @@ func (db *DBImpl) GetCompletedTasks(userID string) ([]models.CompletedTask, erro
 func (db *DBImpl) GetAllCategories(categories *[]models.Category) error {
 	return DB.Find(categories).Error
 }
+
+func (db *DBImpl) GetUserByID(id string) (*models.User, error) {
+	var user models.User
+	err := DB.First(&user, "id = ?", id).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}

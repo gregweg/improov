@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"improov/models"
 	"improov/storage"
 )
 
@@ -63,12 +64,14 @@ func (h *TaskHandler) CompleteTask(w http.ResponseWriter, r *http.Request) {
 	// Update stats
 	switch strings.ToLower(payload.Category) {
 	case "fitness":
-		user.Fitness += 10
+		user.Stats.Fitness += 10
 	case "learning":
-		user.Learning += 10
+		user.Stats.Learning += 10
 	case "mindfulness":
-		user.Mindfulness += 10
+		user.Stats.Mindfulness += 10
 	}
+
+	//user.Points += 10 //
 
 	// Save user and task completion
 	if err := h.DB.SaveUser(user); err != nil {
@@ -81,10 +84,10 @@ func (h *TaskHandler) CompleteTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user.Stats = map[string]int{
-		"fitness":     user.Fitness,
-		"learning":    user.Learning,
-		"mindfulness": user.Mindfulness,
+	user.Stats = models.UserStats{
+		Fitness:     user.Stats.Fitness,
+		Learning:    user.Stats.Learning,
+		Mindfulness: user.Stats.Mindfulness,
 	}
 
 	w.Header().Set("Content-Type", "application/json")

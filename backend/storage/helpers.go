@@ -7,10 +7,10 @@ func GetOrCreateUser(userID string) (*models.User, error) {
 	if err := DB.Preload("Completed").FirstOrCreate(&user, models.User{ID: userID}).Error; err != nil {
 		return nil, err
 	}
-	user.Stats = map[string]int{
-		"fitness":     user.Fitness,
-		"learning":    user.Learning,
-		"mindfulness": user.Mindfulness,
+	user.Stats = models.UserStats{
+		Fitness:     user.Stats.Fitness,
+		Learning:    user.Stats.Learning,
+		Mindfulness: user.Stats.Mindfulness,
 	}
 
 	return &user, nil
